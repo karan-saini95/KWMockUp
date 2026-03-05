@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDF Spaces — Acrobat</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Adobe+Clean:wght@300;400;600;700&display=swap');
+  <link rel="stylesheet" href="https://use.typekit.net/evk7lzt.css">
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -37,7 +37,7 @@
   }
 
   body {
-    font-family: 'Adobe Clean', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'adobe-clean', 'Adobe Clean', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #F4F4F4;
     color: var(--text-primary);
     height: 100vh;
@@ -864,6 +864,67 @@
     background: #F5F5F5;
     border-color: var(--border);
     color: var(--text-primary);
+  }
+
+  /* Follow-up suggestion chips */
+  .followup-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .followup-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+
+  .followup-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    background: #F0EFFC;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #3b35a8;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+    line-height: 1.35;
+  }
+
+  .followup-chip:hover { background: #e3e1f8; }
+
+  .followup-chip svg { flex-shrink: 0; opacity: 0.7; }
+
+  /* User & AI message wrappers */
+  .message-row { display: flex; flex-direction: column; gap: 2px; margin-bottom: 18px; }
+  .user-row { align-items: flex-end; }
+  .ai-row { align-items: flex-start; }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex; gap: 4px; align-items: center;
+    padding: 10px 14px;
+    background: #F7F7F7;
+    border-radius: 12px;
+    width: fit-content;
+  }
+  .typing-indicator span {
+    width: 6px; height: 6px;
+    background: #aaa;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
   }
 
   /* ─── CHAT INPUT ─── */
@@ -2084,7 +2145,133 @@
     if (e.target === document.getElementById('fileModal')) closeModal();
   }
 
-  // Podcast player
+  // ─── CHAT INTERACTION ───
+  const chatInput = document.querySelector('.chat-input');
+  const sendBtn = document.querySelector('.chat-send-btn');
+  const chatMessages = document.querySelector('.chat-messages');
+
+  // Activate send button when there's text
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    sendBtn.classList.toggle('active', this.value.trim().length > 0);
+  });
+
+  chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (this.value.trim()) sendMessage();
+    }
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  // Canned responses keyed to rough topic matching
+  const cannedResponses = [
+    {
+      match: ['meridian','proposal','discount','exception','22%','approval'],
+      text: `<p>The Meridian Corp proposal includes a <strong>22% volume discount</strong>, which exceeds the standard 18% threshold outlined in the Pricing Policies FY2025 document. <span class="cite">1·2</span></p><p>Per policy, any discount above 18% requires <strong>VP-level written approval</strong> before the proposal can be countersigned. No such approval is currently on file. <span class="cite">2</span></p><p>Recommended action: escalate to VP Finance and VP Sales for written sign-off before sending the revised proposal to Meridian. <span class="cite">3</span></p>`,
+      followups: ["What's the standard escalation process for discount exceptions?", 'Draft an escalation email to VP Finance for the Meridian discount']
+    },
+    {
+      match: ['technorth','sla','uptime','contract','terms','legal'],
+      text: `<p>The TechNorth contract draft requests <strong>99.95% uptime</strong> and a <strong>4-hour critical response SLA</strong>, which are non-standard terms not covered by the default template. <span class="cite">5</span></p><p>These terms are consistent with their 2024 agreement, suggesting a precedent exists. However, legal review is required before countersigning any deviation from standard SLA language. <span class="cite">4·5</span></p><p>The deal is otherwise Q1 priority and ready to route to legal. <span class="cite">6</span></p>`,
+      followups: ['Summarize TechNorth\'s contract history across files', 'What does standard SLA policy allow without legal review?']
+    },
+    {
+      match: ['summary','overview','space','files','deals'],
+      text: `<p>This space covers two active Q1 enterprise deals — <strong>Meridian Corp</strong> and <strong>TechNorth</strong> — alongside Yukon collections for pricing and sales enablement. <span class="cite">1·3</span></p><p>Both deals are at contract review stage. Meridian is blocked on a discount exception; TechNorth is pending legal review of non-standard SLA terms. <span class="cite">4·6</span></p>`,
+      followups: ['What are the open blockers across both deals?', 'Which deal is closer to close?']
+    }
+  ];
+
+  const defaultResponse = {
+    text: `<p>Based on the documents in this space, I can help you analyze deal terms, pricing compliance, and contract language. <span class="cite">1·6</span></p><p>Could you clarify what you'd like to focus on — Meridian, TechNorth, or a cross-deal summary?</p>`,
+    followups: ['Summarize open blockers across both deals', 'Compare discount terms in the Meridian proposal to pricing policy']
+  };
+
+  function getBestResponse(query) {
+    const q = query.toLowerCase();
+    for (const r of cannedResponses) {
+      if (r.match.some(k => q.includes(k))) return r;
+    }
+    return defaultResponse;
+  }
+
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    // Hide landing state on first message
+    const landing = document.querySelector('.landing-greeting');
+    const landingSub = document.querySelector('.landing-subtitle');
+    const summaryCard = document.querySelector('.summary-card-landing');
+    if (landing) landing.style.display = 'none';
+    if (landingSub) landingSub.style.display = 'none';
+    if (summaryCard) summaryCard.style.display = 'none';
+
+    // User bubble
+    const userRow = document.createElement('div');
+    userRow.className = 'message-row user-row';
+    userRow.innerHTML = `<div class="user-bubble">${escapeHtml(text)}</div>`;
+    chatMessages.appendChild(userRow);
+
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    sendBtn.classList.remove('active');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Typing indicator
+    const typingRow = document.createElement('div');
+    typingRow.className = 'message-row ai-row';
+    typingRow.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+    chatMessages.appendChild(typingRow);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    const response = getBestResponse(text);
+
+    setTimeout(() => {
+      typingRow.remove();
+
+      const aiRow = document.createElement('div');
+      aiRow.className = 'message-row ai-row';
+
+      const chipsHtml = response.followups.map(f =>
+        `<button class="followup-chip" onclick="injectFollowup(this)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          ${escapeHtml(f)}
+        </button>`
+      ).join('');
+
+      aiRow.innerHTML = `
+        <div class="ai-response">${response.text}</div>
+        <div class="followup-chips">
+          <div class="followup-label">What can I help with next?</div>
+          ${chipsHtml}
+        </div>
+        <div class="ai-actions">
+          <button class="ai-action-btn" title="Save to notes">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="ai-action-btn" title="Copy">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>`;
+
+      chatMessages.appendChild(aiRow);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1200);
+  }
+
+  function injectFollowup(btn) {
+    chatInput.value = btn.textContent.trim();
+    chatInput.dispatchEvent(new Event('input'));
+    chatInput.focus();
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
   const podcastDurations = { highlights: 412, deepdive: 539 }; // seconds
   const podcastState = { highlights: { playing: false, elapsed: 0 }, deepdive: { playing: false, elapsed: 0 } };
   let podcastTimers = {};
