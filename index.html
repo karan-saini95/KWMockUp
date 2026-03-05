@@ -1416,6 +1416,75 @@
     cursor: pointer;
   }
   .modal-add-btn.active:hover { background: #0F5EC4; }
+  /* Artifact edit chips */
+  .artifact-edit-chip {
+    padding: 5px 11px;
+    border-radius: 12px;
+    border: 1px solid #d3cffb;
+    background: #f0effc;
+    color: #4b44c8;
+    font-size: 11.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s;
+    white-space: nowrap;
+  }
+  .artifact-edit-chip:hover { background: #e4e0fc; }
+
+  /* Artifact list card */
+  .artifact-list-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .artifact-list-card:hover { background: #f8f8f8; }
+  .artifact-list-card-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: #f0effc;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: #6058e8;
+  }
+  .artifact-list-card-info { flex: 1; min-width: 0; }
+  .artifact-list-card-title { font-size: 12.5px; font-weight: 600; color: #1e1e1e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .artifact-list-card-meta { font-size: 11px; color: #9e9e9e; }
+
+  /* Generate artifact button in chat */
+  .generate-artifact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #d3cffb;
+    background: white;
+    color: #6058e8;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.12s;
+    margin-top: 8px;
+  }
+  .generate-artifact-btn:hover { background: #f0effc; border-color: #b8b2f0; }
+
+  /* Artifact updating overlay */
+  .artifact-updating {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: #6058e8;
+    padding: 6px 0;
+  }
+  .artifact-updating-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #6058e8;
+    animation: bounce 1s infinite;
+  }
+  .artifact-updating-dot:nth-child(2) { animation-delay: 0.15s; }
+  .artifact-updating-dot:nth-child(3) { animation-delay: 0.3s; }
 </style>
 </head>
 <body>
@@ -1468,6 +1537,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
       <span class="nav-label">Podcasts</span>
       <span class="nav-count">2</span>
+    </div>
+    <div class="nav-item" id="nav-artifacts" onclick="switchPanel('artifacts')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      <span class="nav-label">Artifacts</span>
+      <span class="nav-count" id="nav-artifacts-count" style="display:none">0</span>
     </div>
     <div class="nav-divider"></div>
     <div class="nav-item">
@@ -1713,6 +1787,65 @@
     </div>
     <!-- end panel-podcasts -->
 
+    <!-- ARTIFACTS panel -->
+    <div id="panel-artifacts" style="display:none; flex-direction:column; height:100%; overflow:hidden;">
+
+      <!-- Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; flex-shrink:0; border-bottom:1px solid #ebebeb;">
+        <span style="font-size:13px; font-weight:600; color:#1e1e1e;">Artifacts</span>
+        <div onclick="closePanel()" style="cursor:pointer; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:4px; color:#6e6e6e;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="artifacts-empty" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; gap:10px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d0d0d0" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <p style="font-size:12px; color:#9e9e9e; line-height:1.5;">No artifacts yet. Ask the AI a question and generate one from the response.</p>
+      </div>
+
+      <!-- Artifact list (shown when artifacts exist) -->
+      <div id="artifacts-list" style="display:none; flex-direction:column; overflow-y:auto; flex:1;">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Artifact editor (shown when one is open) -->
+      <div id="artifact-editor" style="display:none; flex-direction:column; height:100%; overflow:hidden;">
+
+        <!-- Editor header -->
+        <div style="display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid #ebebeb; flex-shrink:0;">
+          <button onclick="closeArtifactEditor()" style="background:none;border:none;cursor:pointer;color:#6e6e6e;display:flex;align-items:center;padding:2px;" title="Back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div style="flex:1"></div>
+          <button onclick="exportArtifact()" style="display:flex;align-items:center;gap:5px;padding:5px 12px;background:#1473e6;color:white;border:none;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#0d66d0'" onmouseout="this.style.background='#1473e6'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+
+        <!-- Editable title -->
+        <div style="padding:14px 16px 6px; flex-shrink:0;">
+          <div id="artifact-title" contenteditable="true" spellcheck="false"
+            style="font-size:15px;font-weight:700;color:#1e1e1e;outline:none;border-bottom:2px solid transparent;padding-bottom:3px;transition:border-color 0.15s;line-height:1.3;"
+            onfocus="this.style.borderColor='#6058e8'" onblur="this.style.borderColor='transparent'">
+            Artifact Title
+          </div>
+          <div id="artifact-meta" style="font-size:11px;color:#9e9e9e;margin-top:4px;">Generated just now · from chat</div>
+        </div>
+
+        <!-- Editable body -->
+        <div style="flex:1;overflow-y:auto;padding:4px 16px 12px;">
+          <div id="artifact-body" contenteditable="true" spellcheck="false"
+            style="font-size:13px;line-height:1.7;color:#1e1e1e;outline:none;min-height:100px;">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- end panel-artifacts -->
+
     <!-- NOTES panel: empty state -->
     <div id="panel-notes-empty" class="notes-panel" style="display:none;">
       <div class="notes-panel-header">
@@ -1819,6 +1952,16 @@
 
     <!-- INPUT -->
     <div class="chat-input-wrap">
+      <!-- Artifact editing context banner -->
+      <div id="artifact-context-banner" style="display:none; align-items:center; gap:8px; padding:7px 4px 8px; margin-bottom:2px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6058e8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <span style="font-size:12px;color:#6058e8;font-weight:500;flex:1;" id="artifact-context-label">Editing artifact</span>
+        <button onclick="exitArtifactMode()" style="font-size:11px;color:#9e9e9e;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 4px;border-radius:4px;" onmouseover="this.style.color='#1e1e1e'" onmouseout="this.style.color='#9e9e9e'">Exit</button>
+      </div>
+      <!-- Contextual edit chips (shown in artifact mode) -->
+      <div id="artifact-chat-chips" style="display:none; gap:6px; flex-wrap:wrap; padding-bottom:8px;">
+        <!-- populated dynamically -->
+      </div>
       <div class="chat-input-box">
         <textarea class="chat-input" placeholder="Ask a question or describe what you'd like to work on" rows="1"></textarea>
         <div class="chat-input-footer">
@@ -1966,7 +2109,7 @@
     app.classList.remove('panel-hidden');
 
     // hide all sub-panels
-    ['panel-files','panel-notes-empty','panel-notes-list','panel-notes-editor','panel-podcasts'].forEach(id => {
+    ['panel-files','panel-notes-empty','panel-notes-list','panel-notes-editor','panel-podcasts','panel-artifacts'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -1977,12 +2120,14 @@
       showNotesPanel();
     } else if (panel === 'podcasts') {
       document.getElementById('panel-podcasts').style.display = 'flex';
+    } else if (panel === 'artifacts') {
+      showArtifactsPanel();
     }
   }
 
   function closePanel() {
     document.querySelector('.app').classList.add('panel-hidden');
-    ['nav-files','nav-notes','nav-podcasts'].forEach(id => {
+    ['nav-files','nav-notes','nav-podcasts','nav-artifacts'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.remove('active');
     });
@@ -2203,6 +2348,41 @@
     const text = chatInput.value.trim();
     if (!text) return;
 
+    // If an artifact is open, route to artifact editing
+    if (currentArtifactIndex !== null) {
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      sendBtn.classList.remove('active');
+
+      // Show the user's instruction in chat
+      const userRow = document.createElement('div');
+      userRow.className = 'message-row user-row';
+      userRow.innerHTML = `<div class="user-bubble">${escapeHtml(text)}</div>`;
+      chatMessages.appendChild(userRow);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Typing indicator
+      const typingRow = document.createElement('div');
+      typingRow.className = 'message-row ai-row';
+      typingRow.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+      chatMessages.appendChild(typingRow);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      setTimeout(() => {
+        typingRow.remove();
+        applyArtifactEdit(text);
+        const titleEl = document.getElementById('artifact-title');
+        const confirmRow = document.createElement('div');
+        confirmRow.className = 'message-row ai-row';
+        confirmRow.innerHTML = `<div class="ai-response" style="font-size:13px;color:#1e1e1e;">
+          <p>Done — I've updated <strong>${escapeHtml(titleEl.textContent)}</strong>. You can keep editing or <a href="#" onclick="exportArtifact();return false;" style="color:#1473e6;text-decoration:none;font-weight:500;">export it</a> when ready.</p>
+        </div>`;
+        chatMessages.appendChild(confirmRow);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 900);
+      return;
+    }
+
     // Hide landing state on first message
     const landing = document.querySelector('.landing-greeting');
     const landingSub = document.querySelector('.landing-subtitle');
@@ -2234,6 +2414,7 @@
     setTimeout(() => {
       typingRow.remove();
 
+      const noteId = 'note_' + Date.now();
       const aiRow = document.createElement('div');
       aiRow.className = 'message-row ai-row';
 
@@ -2244,13 +2425,16 @@
         </button>`
       ).join('');
 
-      const noteId = 'note_' + Date.now();
       aiRow.innerHTML = `
         <div class="ai-response" id="${noteId}">${response.text}</div>
         <div class="followup-chips">
           <div class="followup-label">What can I help with next?</div>
           ${chipsHtml}
         </div>
+        <button class="generate-artifact-btn" id="gen-btn-${noteId}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          Generate Artifact
+        </button>
         <div class="ai-actions">
           <button class="ai-action-btn" title="Save to notes" onclick="saveResponseAsNote('${noteId}', '${escapeHtml(text)}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -2262,6 +2446,14 @@
 
       chatMessages.appendChild(aiRow);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Wire generate artifact button
+      const genBtn = document.getElementById('gen-btn-' + noteId);
+      if (genBtn) {
+        const capturedText = text;
+        const capturedResponse = response.text;
+        genBtn.addEventListener('click', () => generateArtifact(capturedText, capturedResponse, genBtn));
+      }
     }, 1200);
   }
 
@@ -2314,6 +2506,216 @@
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ─── ARTIFACTS ───
+  let artifacts = [];
+  let currentArtifactIndex = null;
+
+  const artifactTemplates = {
+    summary: (query, responseText) => ({
+      type: 'Summary',
+      title: 'Space Summary — Q1 Deal Review',
+      body: responseText
+    }),
+    action_items: () => ({
+      type: 'Action Items',
+      title: 'Action Items — Q1 Deal Review',
+      body: `<strong>Meridian Corp</strong>\n• Escalate 22% discount exception to VP Finance and VP Sales for written approval\n• Confirm FY2024 pricing lock-in alignment with current policy before countersigning\n• Schedule follow-up call with Meridian to confirm timeline\n\n<strong>TechNorth</strong>\n• Route non-standard SLA language (99.95% uptime, 4hr response) to legal for review\n• Cross-reference 2024 agreement precedents before SLA negotiation\n• Target countersign by end of Q1\n\n<strong>Internal</strong>\n• Document all verbal approvals in writing before deal close\n• Update deal tracker in Salesforce for both accounts`
+    }),
+    decision_memo: () => ({
+      type: 'Decision Memo',
+      title: 'Decision Memo — Meridian Discount Exception',
+      body: `<strong>Context</strong>\nThe Meridian Corp proposal includes a 22% volume discount, exceeding the standard 18% threshold. This memo outlines the exception request and required approvals.\n\n<strong>Recommendation</strong>\nApprove the exception contingent on written sign-off from VP Finance and VP Sales. Do not countersign until approval is on file.\n\n<strong>Rationale</strong>\nMeridian is a Q1 priority account. The 4% overage is within precedent for accounts of this ARR profile. Comparable exceptions have been approved previously.\n\n<strong>Risks</strong>\n• Sets a precedent without documented approval\n• Pricing policy audit risk if undocumented\n\n<strong>Next Steps</strong>\n• VP Finance review by Mar 6\n• VP Sales sign-off by Mar 7\n• Countersign by Mar 10`
+    })
+  };
+
+  function getBestArtifactTemplate(query, responseText) {
+    const q = query.toLowerCase();
+    if (q.includes('action') || q.includes('next step') || q.includes('todo')) return artifactTemplates.action_items();
+    if (q.includes('memo') || q.includes('decision') || q.includes('recommend')) return artifactTemplates.decision_memo();
+    return artifactTemplates.summary(query, stripHtml(responseText));
+  }
+
+  function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.innerText;
+  }
+
+  function showArtifactsPanel() {
+    document.getElementById('panel-artifacts').style.display = 'flex';
+    renderArtifactsList();
+  }
+
+  function renderArtifactsList() {
+    const empty = document.getElementById('artifacts-empty');
+    const list = document.getElementById('artifacts-list');
+    document.getElementById('artifact-editor').style.display = 'none';
+
+    if (artifacts.length === 0) {
+      empty.style.display = 'flex'; list.style.display = 'none';
+    } else {
+      empty.style.display = 'none'; list.style.display = 'flex';
+      list.innerHTML = artifacts.map((a, i) => `
+        <div class="artifact-list-card" onclick="openArtifactEditor(${i})">
+          <div class="artifact-list-card-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div class="artifact-list-card-info">
+            <div class="artifact-list-card-title">${escapeHtml(a.title)}</div>
+            <div class="artifact-list-card-meta">${a.type} · Just now</div>
+          </div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`).join('');
+    }
+  }
+
+  // Chip sets: initial and post-edit variants
+  const artifactChipSets = {
+    initial: ['Condense it', 'Add risks & blockers', 'Add next steps', 'Make it more formal'],
+    afterCondense: ['Expand with more detail', 'Add next steps', 'Add risks & blockers', 'Make it more formal'],
+    afterRisks: ['Condense it', 'Add next steps', 'Rewrite intro paragraph', 'Make it more formal'],
+    afterNextSteps: ['Condense it', 'Add risks & blockers', 'Rewrite intro paragraph', 'Make it more formal'],
+    afterFormal: ['Condense it', 'Add risks & blockers', 'Add next steps', 'Make it conversational'],
+    afterEdit: ['Condense it', 'Add risks & blockers', 'Add next steps', 'Rewrite intro paragraph'],
+  };
+
+  function renderArtifactChatChips(chipSet) {
+    const chips = artifactChipSets[chipSet] || artifactChipSets.initial;
+    const container = document.getElementById('artifact-chat-chips');
+    container.innerHTML = chips.map(label =>
+      `<button class="artifact-edit-chip" onclick="applyArtifactEdit('${label.replace(/'/g,"\\'")}')">
+        ${label}
+      </button>`
+    ).join('');
+  }
+
+  function enterArtifactMode(title) {
+    const banner = document.getElementById('artifact-context-banner');
+    const chips = document.getElementById('artifact-chat-chips');
+    const label = document.getElementById('artifact-context-label');
+    const input = document.querySelector('.chat-input');
+    banner.style.display = 'flex';
+    chips.style.display = 'flex';
+    label.textContent = `Editing: ${title}`;
+    input.placeholder = 'Describe an edit to the artifact…';
+    renderArtifactChatChips('initial');
+  }
+
+  function exitArtifactMode() {
+    document.getElementById('artifact-context-banner').style.display = 'none';
+    document.getElementById('artifact-chat-chips').style.display = 'none';
+    document.querySelector('.chat-input').placeholder = 'Ask a question or describe what you\'d like to work on';
+  }
+
+  function openArtifactEditor(index) {
+    currentArtifactIndex = index;
+    const a = artifacts[index];
+    document.getElementById('artifacts-empty').style.display = 'none';
+    document.getElementById('artifacts-list').style.display = 'none';
+    const editor = document.getElementById('artifact-editor');
+    editor.style.display = 'flex';
+    document.getElementById('artifact-title').textContent = a.title;
+    document.getElementById('artifact-meta').textContent = 'Generated just now · from chat';
+    document.getElementById('artifact-body').innerHTML = a.body.replace(/\n/g, '<br>');
+    enterArtifactMode(a.title);
+  }
+
+  function closeArtifactEditor() {
+    currentArtifactIndex = null;
+    document.getElementById('artifact-editor').style.display = 'none';
+    exitArtifactMode();
+    renderArtifactsList();
+  }
+
+  function generateArtifact(query, responseText, btnEl) {
+    const template = getBestArtifactTemplate(query, responseText);
+    artifacts.push(template);
+    const badge = document.getElementById('nav-artifacts-count');
+    badge.textContent = artifacts.length;
+    badge.style.display = 'block';
+    if (btnEl) {
+      btnEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Open Artifact`;
+      const idx = artifacts.length - 1;
+      btnEl.onclick = () => { switchPanel('artifacts'); openArtifactEditor(idx); };
+    }
+    switchPanel('artifacts');
+    openArtifactEditor(artifacts.length - 1);
+  }
+
+  function applyArtifactEdit(instruction) {
+    if (!instruction || currentArtifactIndex === null) return;
+    const bodyEl = document.getElementById('artifact-body');
+    const titleEl = document.getElementById('artifact-title');
+    bodyEl.style.opacity = '0.4';
+    const inst = instruction.toLowerCase();
+
+    setTimeout(() => {
+      bodyEl.style.opacity = '1';
+      let currentBody = bodyEl.innerText;
+      let nextChipSet = 'afterEdit';
+
+      if (inst.includes('concise') || inst.includes('condense') || inst.includes('shorter')) {
+        const lines = currentBody.split('\n').filter(l => l.trim());
+        const trimmed = lines.slice(0, Math.max(3, Math.ceil(lines.length * 0.6))).join('\n');
+        bodyEl.innerHTML = trimmed.replace(/\n/g, '<br>');
+        artifacts[currentArtifactIndex].body = trimmed;
+        nextChipSet = 'afterCondense';
+      } else if (inst.includes('risk') || inst.includes('blocker')) {
+        const add = '\n\n<strong>Risks & Blockers</strong>\n• VP approval may be delayed given end-of-quarter workload\n• TechNorth SLA review could push countersign past Q1 close\n• No written record of verbal agreements currently on file';
+        bodyEl.innerHTML += add.replace(/\n/g,'<br>');
+        artifacts[currentArtifactIndex].body += add;
+        nextChipSet = 'afterRisks';
+      } else if (inst.includes('next step') || inst.includes('action')) {
+        const add = '\n\n<strong>Next Steps</strong>\n• Secure VP Finance approval by Mar 6\n• Route TechNorth SLA to legal by Mar 7\n• Confirm countersign dates with both accounts by Mar 10';
+        bodyEl.innerHTML += add.replace(/\n/g,'<br>');
+        artifacts[currentArtifactIndex].body += add;
+        nextChipSet = 'afterNextSteps';
+      } else if (inst.includes('formal')) {
+        const lines = currentBody.split('\n').map(l => l.replace(/\bwe\b/gi,'the team').replace(/\byou\b/gi,'the stakeholder'));
+        bodyEl.innerHTML = lines.join('<br>');
+        artifacts[currentArtifactIndex].body = lines.join('\n');
+        nextChipSet = 'afterFormal';
+      } else if (inst.includes('conversational') || inst.includes('casual')) {
+        const lines = currentBody.split('\n').map(l => l.replace(/\bthe team\b/gi,'we').replace(/\bthe stakeholder\b/gi,'you'));
+        bodyEl.innerHTML = lines.join('<br>');
+        artifacts[currentArtifactIndex].body = lines.join('\n');
+        nextChipSet = 'afterEdit';
+      } else if (inst.includes('expand') || inst.includes('detail')) {
+        const add = '\n\n<strong>Additional Context</strong>\nBoth accounts are strategic Q1 targets. Meridian represents $480K ARR; TechNorth $320K. Any delay in approval or legal review risks pushing close into Q2.';
+        bodyEl.innerHTML += add.replace(/\n/g,'<br>');
+        artifacts[currentArtifactIndex].body += add;
+        nextChipSet = 'afterEdit';
+      } else if (inst.includes('rewrite intro') || inst.includes('intro paragraph')) {
+        const lines = currentBody.split('\n');
+        lines[0] = 'This memo summarizes the key compliance and legal considerations for the two active Q1 enterprise deals currently under review.';
+        bodyEl.innerHTML = lines.join('<br>');
+        artifacts[currentArtifactIndex].body = lines.join('\n');
+        nextChipSet = 'afterEdit';
+      } else {
+        const note = `\n\n<em style="color:#9e9e9e;font-size:12px;">Edit applied: "${escapeHtml(instruction)}"</em>`;
+        bodyEl.innerHTML += note;
+        nextChipSet = 'afterEdit';
+      }
+
+      artifacts[currentArtifactIndex].title = titleEl.textContent;
+      renderArtifactChatChips(nextChipSet);
+    }, 900);
+  }
+
+  function exportArtifact() {
+    if (currentArtifactIndex === null) return;
+    const titleEl = document.getElementById('artifact-title');
+    const bodyEl = document.getElementById('artifact-body');
+    const content = titleEl.textContent + '\n\n' + bodyEl.innerText;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = titleEl.textContent.replace(/[^a-z0-9]/gi,'_') + '.txt';
+    a.click(); URL.revokeObjectURL(url);
+  }
+
+  // ─── PODCAST PLAYER ───
   const podcastDurations = { highlights: 412, deepdive: 539 }; // seconds
   const podcastState = { highlights: { playing: false, elapsed: 0 }, deepdive: { playing: false, elapsed: 0 } };
   let podcastTimers = {};
