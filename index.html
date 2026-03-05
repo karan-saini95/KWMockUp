@@ -890,6 +890,7 @@
     border: none;
     border-radius: 20px;
     font-size: 13px;
+    font-family: inherit;
     color: #3b35a8;
     cursor: pointer;
     text-align: left;
@@ -2243,14 +2244,15 @@
         </button>`
       ).join('');
 
+      const noteId = 'note_' + Date.now();
       aiRow.innerHTML = `
-        <div class="ai-response">${response.text}</div>
+        <div class="ai-response" id="${noteId}">${response.text}</div>
         <div class="followup-chips">
           <div class="followup-label">What can I help with next?</div>
           ${chipsHtml}
         </div>
         <div class="ai-actions">
-          <button class="ai-action-btn" title="Save to notes">
+          <button class="ai-action-btn" title="Save to notes" onclick="saveResponseAsNote('${noteId}', '${escapeHtml(text)}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </button>
           <button class="ai-action-btn" title="Copy">
@@ -2261,6 +2263,46 @@
       chatMessages.appendChild(aiRow);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }, 1200);
+  }
+
+  // Generated note titles based on query topic
+  const noteTitles = [
+    ['meridian','discount','proposal','pricing','compliance'], 'Meridian Pricing Compliance Summary',
+    ['technorth','sla','contract','legal','uptime'], 'TechNorth SLA Exception Notes',
+    ['summary','overview','space','deals','files'], 'Q1 Deal Space Overview'
+  ];
+
+  function generateNoteTitle(query) {
+    const q = query.toLowerCase();
+    for (let i = 0; i < noteTitles.length; i += 2) {
+      if (noteTitles[i].some(k => q.includes(k))) return noteTitles[i + 1];
+    }
+    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return 'AI Response — ' + date;
+  }
+
+  function saveResponseAsNote(elId, query) {
+    const el = document.getElementById(elId);
+    const body = el ? el.innerText.trim() : '';
+    const title = generateNoteTitle(query);
+
+    notes.push({ title, body });
+
+    // Update nav count
+    document.getElementById('nav-notes-count').textContent = notes.length;
+
+    // Flash the save button green as confirmation
+    const btn = el ? el.closest('.message-row, .ai-row').querySelector('[title="Save to notes"]') : null;
+    if (btn) {
+      btn.style.color = '#1473e6';
+      btn.style.background = '#e6f0ff';
+      btn.title = 'Saved!';
+      setTimeout(() => {
+        btn.style.color = '';
+        btn.style.background = '';
+        btn.title = 'Save to notes';
+      }, 2000);
+    }
   }
 
   function injectFollowup(btn) {
