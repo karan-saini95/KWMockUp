@@ -50,6 +50,11 @@
     grid-template-columns: 180px 280px 1fr;
     grid-template-rows: 44px 1fr;
     height: 100vh;
+    transition: grid-template-columns 0.2s ease;
+  }
+
+  .app.panel-hidden {
+    grid-template-columns: 180px 0px 1fr;
   }
 
   /* ─── TOPBAR ─── */
@@ -233,14 +238,245 @@
 
   .nav-spacer { flex: 1; }
 
-  /* ─── FILE PANEL ─── */
+  /* panel hidden state */
   .file-panel {
     background: var(--panel-bg);
     border-right: 1px solid var(--panel-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.2s ease;
   }
+
+  .app.panel-hidden .file-panel {
+    border-right: none;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* ─── NOTES PANEL ─── */
+  .notes-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .notes-panel-header {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notes-panel-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .notes-close-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .notes-close-btn:hover { background: #F0F0F0; }
+
+  /* Empty state */
+  .notes-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .notes-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .notes-empty-subtitle {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .notes-create-btn {
+    margin-top: 6px;
+    padding: 9px 20px;
+    border-radius: 20px;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s;
+  }
+  .notes-create-btn:hover { background: #333; }
+
+  /* Notes list state */
+  .notes-list-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notes-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .note-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+    margin-bottom: 6px;
+    background: white;
+  }
+  .note-card:hover { background: #FAFAFA; }
+
+  .note-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+
+  .note-card-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  .note-card-preview {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .note-card-preview .faded { color: var(--text-tertiary); }
+
+  /* Note editor */
+  .note-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .note-editor-topbar {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  .note-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+  .note-back-btn:hover { background: #F0F0F0; color: var(--text-primary); }
+
+  .note-editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .note-action-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: background 0.1s;
+    background: none;
+    border: none;
+  }
+  .note-action-btn:hover { background: #F0F0F0; color: var(--text-primary); }
+
+  .note-editor-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 8px;
+  }
+
+  .note-title-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: transparent;
+    margin-bottom: 2px;
+  }
+
+  .note-title-input::placeholder { color: var(--text-tertiary); }
+
+  .note-edited-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .note-author-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6058E8, #9B59B6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: white;
+    font-weight: 700;
+  }
+
+  .note-body-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+    resize: none;
+    line-height: 1.6;
+    min-height: 200px;
+  }
+
+  .note-body-input::placeholder { color: var(--text-tertiary); }
 
   .file-panel-header {
     padding: 14px 16px 10px;
@@ -1125,17 +1361,17 @@
 
   <!-- LEFT NAV -->
   <nav class="nav">
-    <div class="nav-item active">
+    <div class="nav-item active" id="nav-files" onclick="switchPanel('files')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span class="nav-label">Files</span>
-      <span class="nav-badge">6</span>
+      <span class="nav-badge" id="nav-files-badge">6</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="nav-notes" onclick="switchPanel('notes')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       <span class="nav-label">Notes</span>
-      <span class="nav-count">0</span>
+      <span class="nav-count" id="nav-notes-count">0</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="nav-podcasts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
       <span class="nav-label">Podcasts</span>
       <span class="nav-count">2</span>
@@ -1153,39 +1389,32 @@
     </div>
     <div class="nav-item" style="margin-bottom:4px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-      <span class="nav-label" style="font-size:12px;color:var(--text-tertiary)"></span>
     </div>
   </nav>
 
-  <!-- FILE PANEL -->
-  <div class="file-panel">
-    <div class="file-panel-header">
-      <span class="file-panel-title">Files</span>
-      <div class="file-panel-close">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </div>
-    </div>
-    <div class="file-panel-subtitle">Add or select files and links to update your PDF Space</div>
-    <div class="drop-zone" onclick="openModal()">
-      Drag and drop your files, or <a href="#" onclick="event.preventDefault();openModal()">choose files</a>
-    </div>
-    <div class="file-controls">
-      <button class="sort-btn">
-        Sort by
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="view-btns">
-        <div class="view-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </div>
-        <div class="view-btn active">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        </div>
-        <div class="view-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  <!-- DYNAMIC PANEL -->
+  <div class="file-panel" id="sidePanel">
+
+    <!-- FILES panel -->
+    <div id="panel-files">
+      <div class="file-panel-header">
+        <span class="file-panel-title">Files</span>
+        <div class="file-panel-close" onclick="closePanel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </div>
       </div>
-    </div>
+      <div class="file-panel-subtitle">Add or select files and links to update your PDF Space</div>
+      <div class="drop-zone" onclick="openModal()">
+        Drag and drop your files, or <a href="#" onclick="event.preventDefault();openModal()">choose files</a>
+      </div>
+      <div class="file-controls">
+        <button class="sort-btn">Sort by <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="view-btns">
+          <div class="view-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="view-btn active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+          <div class="view-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+      </div>
     <div class="file-list">
 
       <div class="file-item">
@@ -1297,7 +1526,71 @@
       </div>
 
     </div>
-  </div>
+    </div> <!-- end panel-files -->
+
+    <!-- NOTES panel: empty state -->
+    <div id="panel-notes-empty" class="notes-panel" style="display:none;">
+      <div class="notes-panel-header">
+        <span class="notes-panel-title">Notes</span>
+        <div class="notes-close-btn" onclick="closePanel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="notes-empty">
+        <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+          <rect x="18" y="10" width="44" height="56" rx="4" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+          <rect x="24" y="22" width="20" height="3" rx="1.5" fill="#EB1000"/>
+          <rect x="24" y="30" width="32" height="2" rx="1" fill="#E0E0E0"/>
+          <rect x="24" y="36" width="28" height="2" rx="1" fill="#E0E0E0"/>
+          <path d="M52 58 Q58 50 64 56 Q70 48 72 60" stroke="#EB1000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="62" cy="68" r="8" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+          <path d="M58 68l3 3 5-5" stroke="#6058E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="notes-empty-title">Add your first note</div>
+        <div class="notes-empty-subtitle">Quickly capture thoughts, ideas, and text so you can refer to them later and use them in chats.</div>
+        <button class="notes-create-btn" onclick="openNoteEditor()">Create a note</button>
+      </div>
+    </div>
+
+    <!-- NOTES panel: list state -->
+    <div id="panel-notes-list" class="notes-panel" style="display:none;">
+      <div class="notes-panel-header">
+        <span class="notes-panel-title">Notes</span>
+        <div class="notes-close-btn" onclick="closePanel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="notes-list-header">
+        <button class="notes-create-btn" style="padding:7px 14px;font-size:12px;" onclick="openNoteEditor()">Create a note</button>
+      </div>
+      <div class="notes-list" id="notesListContainer"></div>
+    </div>
+
+    <!-- NOTES panel: editor -->
+    <div id="panel-notes-editor" class="notes-panel" style="display:none;">
+      <div class="note-editor-topbar">
+        <button class="note-back-btn" onclick="saveNote()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          View all notes
+        </button>
+        <div class="note-editor-actions">
+          <button class="note-action-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          <button class="note-action-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+          <button class="note-action-btn" onclick="closePanel()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+      <div class="note-editor-content">
+        <input class="note-title-input" id="noteTitleInput" placeholder="Untitled" />
+        <div class="note-edited-label">
+          Edited just now
+          <div class="note-author-dot">KS</div>
+          <div style="width:6px;height:6px;border-radius:50%;background:#1A7A4A;margin-left:2px;"></div>
+        </div>
+        <textarea class="note-body-input" id="noteBodyInput" placeholder="Type or paste text to get started"></textarea>
+      </div>
+    </div>
+
+  </div> <!-- end sidePanel -->
 
   <!-- CHAT AREA -->
   <div class="chat-area">
@@ -1464,7 +1757,111 @@
 </div>
 
 <script>
-  const recentFiles = [
+  // ─── PANEL & NAV SWITCHING ───
+  let currentPanel = 'files';
+  let notes = [];
+
+  function switchPanel(panel) {
+    const app = document.querySelector('.app');
+    const navItems = ['files','notes','podcasts'];
+
+    // update nav active state
+    navItems.forEach(p => {
+      const el = document.getElementById('nav-' + p);
+      if (el) el.classList.toggle('active', p === panel);
+    });
+
+    if (currentPanel === panel) {
+      // toggle off
+      closePanel();
+      return;
+    }
+
+    currentPanel = panel;
+    app.classList.remove('panel-hidden');
+
+    // hide all sub-panels
+    ['panel-files','panel-notes-empty','panel-notes-list','panel-notes-editor'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    if (panel === 'files') {
+      document.getElementById('panel-files').style.display = 'block';
+    } else if (panel === 'notes') {
+      showNotesPanel();
+    }
+  }
+
+  function closePanel() {
+    document.querySelector('.app').classList.add('panel-hidden');
+    ['nav-files','nav-notes','nav-podcasts'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    currentPanel = null;
+  }
+
+  function showNotesPanel() {
+    if (notes.length === 0) {
+      document.getElementById('panel-notes-empty').style.display = 'flex';
+    } else {
+      renderNotesList();
+      document.getElementById('panel-notes-list').style.display = 'flex';
+    }
+  }
+
+  function openNoteEditor(noteIndex) {
+    ['panel-notes-empty','panel-notes-list'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    const editor = document.getElementById('panel-notes-editor');
+    editor.style.display = 'flex';
+
+    if (noteIndex !== undefined) {
+      document.getElementById('noteTitleInput').value = notes[noteIndex].title;
+      document.getElementById('noteBodyInput').value = notes[noteIndex].body;
+      editor.dataset.editIndex = noteIndex;
+    } else {
+      document.getElementById('noteTitleInput').value = '';
+      document.getElementById('noteBodyInput').value = '';
+      delete editor.dataset.editIndex;
+    }
+  }
+
+  function saveNote() {
+    const title = document.getElementById('noteTitleInput').value.trim() || 'Untitled';
+    const body = document.getElementById('noteBodyInput').value.trim();
+    const editor = document.getElementById('panel-notes-editor');
+    const editIndex = editor.dataset.editIndex;
+
+    if (editIndex !== undefined) {
+      notes[editIndex] = { title, body };
+    } else {
+      notes.unshift({ title, body });
+    }
+
+    // update nav count
+    document.getElementById('nav-notes-count').textContent = notes.length;
+
+    document.getElementById('panel-notes-editor').style.display = 'none';
+    renderNotesList();
+    document.getElementById('panel-notes-list').style.display = 'flex';
+  }
+
+  function renderNotesList() {
+    const container = document.getElementById('notesListContainer');
+    container.innerHTML = notes.map((note, i) => `
+      <div class="note-card" onclick="openNoteEditor(${i})">
+        <div class="note-card-title">${note.title || 'Untitled'}</div>
+        <div class="note-card-meta">Edited just now &bull; You</div>
+        <div class="note-card-preview">
+          ${note.body.substring(0, 80)}<span class="faded">${note.body.length > 80 ? note.body.substring(80, 120) + '…' : ''}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
     { name: 'Meridian Corp — Proposal v4.pdf', size: 'PDF · 1.2 MB', date: 'Mar 3', thumb: 'lines' },
     { name: 'TechNorth — Contract Redline.pdf', size: 'PDF · 890 KB', date: 'Mar 1', thumb: 'lines' },
     { name: 'Customer Zero Prioritized Feedback (2).pdf', size: 'PDF · 412 KB', date: 'Feb 6', thumb: 'red' },
