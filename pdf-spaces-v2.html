@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Spaces — Acrobat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Adobe+Clean:wght@300;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --nav-bg: #1E1E1E;
+    --nav-icon: #AAAAAA;
+    --nav-icon-active: #FFFFFF;
+    --nav-active-bg: #333333;
+    --panel-bg: #FFFFFF;
+    --panel-border: #E8E8E8;
+    --chat-bg: #FFFFFF;
+    --text-primary: #1E1E1E;
+    --text-secondary: #6E6E6E;
+    --text-tertiary: #9E9E9E;
+    --user-bubble: #6058E8;
+    --user-bubble-hover: #5148D6;
+    --ai-bg: #FFFFFF;
+    --border: #E3E3E3;
+    --follow-up-bg: #F0EFFE;
+    --follow-up-border: #D3CFFB;
+    --follow-up-text: #4B44C8;
+    --citation-bg: #EAE8FD;
+    --citation-text: #5048CC;
+    --topbar-bg: #FFFFFF;
+    --topbar-border: #E3E3E3;
+    --red: #EB1000;
+    --drop-bg: #F5F5F5;
+    --drop-border: #CCCCCC;
+  }
+
+  body {
+    font-family: 'Adobe Clean', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F4F4F4;
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 52px 280px 1fr;
+    grid-template-rows: 44px 1fr;
+    height: 100vh;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    grid-column: 1 / -1;
+    background: var(--topbar-bg);
+    border-bottom: 1px solid var(--topbar-border);
+    display: flex;
+    align-items: center;
+    padding: 0 14px 0 10px;
+    gap: 8px;
+    z-index: 20;
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .acrobat-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .space-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .space-name svg { color: var(--text-tertiary); }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .btn-ghost:hover { background: #F5F5F5; }
+
+  .btn-dark {
+    background: var(--text-primary);
+    color: white;
+  }
+  .btn-dark:hover { background: #333; }
+
+  .btn-feedback {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-size: 12px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.12s;
+  }
+  .icon-btn:hover { background: #F0F0F0; }
+
+  .topbar-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9B59B6, #6058E8);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 11px; font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ─── LEFT NAV ─── */
+  .nav {
+    background: var(--nav-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    gap: 2px;
+    z-index: 10;
+  }
+
+  .nav-item {
+    width: 40px; height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--nav-icon);
+    cursor: pointer;
+    transition: all 0.12s;
+    gap: 2px;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--nav-active-bg); color: var(--nav-icon-active); }
+
+  .nav-item.active {
+    background: var(--nav-active-bg);
+    color: var(--nav-icon-active);
+  }
+
+  .nav-item svg { width: 18px; height: 18px; }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-badge {
+    position: absolute;
+    top: 5px; right: 5px;
+    background: var(--red);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .nav-spacer { flex: 1; }
+
+  /* ─── FILE PANEL ─── */
+  .file-panel {
+    background: var(--panel-bg);
+    border-right: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .file-panel-header {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .file-panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .file-panel-close {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.12s;
+  }
+  .file-panel-close:hover { background: #F0F0F0; }
+
+  .file-panel-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 10px 16px 8px;
+  }
+
+  .drop-zone {
+    margin: 0 16px 12px;
+    border: 1.5px dashed var(--drop-border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    background: var(--drop-bg);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .drop-zone:hover { border-color: #999; }
+
+  .drop-zone a {
+    color: var(--user-bubble);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .file-controls {
+    padding: 6px 16px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .view-btns {
+    display: flex;
+    gap: 4px;
+  }
+
+  .view-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .view-btn.active { color: var(--text-primary); background: #EBEBEB; }
+
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-radius: 0;
+  }
+
+  .file-item:hover { background: #F5F5F5; }
+
+  .file-thumb {
+    width: 36px; height: 46px;
+    border-radius: 3px;
+    border: 1px solid #E0E0E0;
+    background: white;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #999;
+    position: relative;
+  }
+
+  .file-thumb-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 5px;
+    width: 100%;
+  }
+
+  .thumb-line {
+    height: 2px;
+    background: #E0E0E0;
+    border-radius: 1px;
+  }
+
+  .thumb-line.dark { background: #C0C0C0; }
+  .thumb-line.short { width: 60%; }
+
+  .file-info { flex: 1; min-width: 0; }
+
+  .file-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+    font-weight: 400;
+  }
+
+  .file-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .file-more {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  .file-item:hover .file-more { opacity: 1; }
+  .file-more:hover { background: #EBEBEB; }
+
+  /* ─── CHAT AREA ─── */
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+    background: var(--chat-bg);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chat-header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chat-header-title svg { color: var(--user-bubble); }
+
+  .chat-header-more {
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 80px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* User bubble */
+  .msg-user {
+    display: flex;
+    justify-content: flex-end;
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .user-bubble {
+    background: var(--user-bubble);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    padding: 11px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 65%;
+    font-weight: 400;
+  }
+
+  /* AI response */
+  .msg-ai {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.3s 0.1s ease both;
+  }
+
+  .ai-response {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-primary);
+    max-width: 820px;
+  }
+
+  .ai-response p { margin-bottom: 10px; }
+  .ai-response p:last-child { margin-bottom: 0; }
+
+  .ai-response strong { font-weight: 600; }
+
+  .ai-response h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 12px 0 6px;
+    color: var(--text-primary);
+  }
+
+  .ai-response ol, .ai-response ul {
+    padding-left: 20px;
+    margin-bottom: 8px;
+  }
+
+  .ai-response li {
+    margin-bottom: 6px;
+    line-height: 1.55;
+  }
+
+  /* Citation superscript */
+  .cite {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--citation-bg);
+    color: var(--citation-text);
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0px 4px;
+    margin: 0 1px;
+    cursor: pointer;
+    vertical-align: super;
+    line-height: 1.4;
+    transition: background 0.1s;
+    white-space: nowrap;
+  }
+
+  .cite:hover { background: #D8D4FB; }
+
+  /* Follow-up buttons */
+  .follow-up-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    max-width: 580px;
+    animation: fadeIn 0.3s 0.2s ease both;
+  }
+
+  .follow-up-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .follow-up-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--follow-up-bg);
+    border: 1px solid var(--follow-up-border);
+    color: var(--follow-up-text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.12s;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .follow-up-btn:hover {
+    background: #E4E0FC;
+    border-color: #B8B2F0;
+  }
+
+  .follow-up-btn svg {
+    flex-shrink: 0;
+    color: var(--user-bubble);
+  }
+
+  /* Action icons under AI message */
+  .ai-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .ai-action-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    color: var(--text-tertiary);
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .ai-action-btn:hover {
+    background: #F5F5F5;
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  /* ─── CHAT INPUT ─── */
+  .chat-input-wrap {
+    padding: 14px 80px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .chat-input-box {
+    background: white;
+    border: 1px solid #CCCCCC;
+    border-radius: 10px;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .chat-input-box:focus-within {
+    border-color: #AAAAAA;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .chat-input {
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    background: transparent;
+    resize: none;
+    line-height: 1.4;
+    min-height: 20px;
+  }
+
+  .chat-input::placeholder { color: var(--text-tertiary); }
+
+  .chat-input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-assistant-picker {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+
+  .ai-assistant-picker:hover { background: #F5F5F5; }
+
+  .ai-assistant-picker svg { color: var(--user-bubble); }
+
+  .chat-input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chat-action-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    color: var(--text-tertiary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .chat-action-btn:hover { background: #F0F0F0; color: var(--text-primary); }
+
+  .chat-send-btn {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    background: var(--text-tertiary);
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: not-allowed;
+    color: white;
+    transition: all 0.12s;
+  }
+
+  .chat-send-btn.active {
+    background: var(--user-bubble);
+    cursor: pointer;
+  }
+
+  .chat-send-btn.active:hover { background: var(--user-bubble-hover); }
+
+  .chat-disclaimer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+  }
+
+  .chat-disclaimer a { color: var(--user-bubble); text-decoration: none; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D8D8D8; border-radius: 4px; }
+
+  /* ─── LANDING STATE ─── */
+  .landing-greeting {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1.3;
+    margin-bottom: 6px;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .landing-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s 0.05s ease both;
+  }
+
+  .summary-card-landing {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    background: white;
+    max-width: 820px;
+    animation: fadeIn 0.35s 0.1s ease both;
+  }
+
+  .summary-card-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  .summary-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .summary-body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+
+  .summary-bullets {
+    list-style: disc;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .summary-bullets li {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <svg class="acrobat-icon" viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="5" fill="#EB1000"/>
+        <path d="M7 19V8l6 8 6-8v11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="space-name">
+      Q1 Enterprise Deal Review
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:2px;color:#9E9E9E"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-feedback">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Send beta feedback
+      </button>
+      <button class="btn btn-ghost" style="border-radius:16px; padding:5px 14px; font-size:13px;">Share</button>
+      <button class="btn btn-dark" style="border-radius:16px; padding:5px 16px; font-size:13px;">Create</button>
+      <div class="icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="icon-btn" style="position:relative;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div style="position:absolute;top:4px;right:4px;width:8px;height:8px;background:#EB1000;border-radius:50%;border:1.5px solid white;"></div>
+      </div>
+      <div class="topbar-avatar">JM</div>
+    </div>
+  </header>
+
+  <!-- LEFT NAV -->
+  <nav class="nav">
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label">Files</span>
+      <div class="nav-badge">6</div>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span class="nav-label">Notes</span>
+      <div style="position:absolute;top:5px;right:5px;font-size:9px;color:#aaa;font-weight:600;">0</div>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      <span class="nav-label">Podcasts</span>
+      <div style="position:absolute;top:5px;right:5px;font-size:9px;color:#aaa;font-weight:600;">2</div>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <span class="nav-label">Presentations</span>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#AAAAAA" stroke-width="2" style="position:absolute;top:6px;right:5px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="nav-label">Learn</span>
+    </div>
+  </nav>
+
+  <!-- FILE PANEL -->
+  <div class="file-panel">
+    <div class="file-panel-header">
+      <span class="file-panel-title">Files</span>
+      <div class="file-panel-close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="file-panel-subtitle">Add or select files and links to update your PDF Space</div>
+    <div class="drop-zone">
+      Drag and drop your files, or <a href="#">choose files</a>
+    </div>
+    <div class="file-controls">
+      <button class="sort-btn">
+        Sort by
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="view-btns">
+        <div class="view-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="view-btn active">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div class="view-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="file-list">
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line dark"></div><div class="thumb-line"></div>
+            <div class="thumb-line short"></div><div class="thumb-line"></div>
+            <div class="thumb-line dark"></div><div class="thumb-line short"></div>
+            <div class="thumb-line"></div><div class="thumb-line dark"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Meridian Corp — Proposal v3</div>
+          <div class="file-meta">Added Mar 3 • You</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line"></div><div class="thumb-line dark short"></div>
+            <div class="thumb-line"></div><div class="thumb-line dark"></div>
+            <div class="thumb-line short"></div><div class="thumb-line"></div>
+            <div class="thumb-line dark"></div><div class="thumb-line"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">TechNorth — Contract Draft</div>
+          <div class="file-meta">Added Mar 2 • You</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line dark"></div><div class="thumb-line short"></div>
+            <div class="thumb-line"></div><div class="thumb-line"></div>
+            <div class="thumb-line dark short"></div><div class="thumb-line"></div>
+            <div class="thumb-line dark"></div><div class="thumb-line short"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Pricing Policies FY2025</div>
+          <div class="file-meta">Added Feb 28 • Yukon</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line"></div><div class="thumb-line dark"></div>
+            <div class="thumb-line short"></div><div class="thumb-line dark"></div>
+            <div class="thumb-line"></div><div class="thumb-line short"></div>
+            <div class="thumb-line dark"></div><div class="thumb-line"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Sales Enablement Knowledge Base</div>
+          <div class="file-meta">Added Feb 27 • Yukon</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line dark"></div><div class="thumb-line"></div>
+            <div class="thumb-line dark short"></div><div class="thumb-line"></div>
+            <div class="thumb-line"></div><div class="thumb-line dark"></div>
+            <div class="thumb-line short"></div><div class="thumb-line"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">Meridian — Deal Notes Q1</div>
+          <div class="file-meta">Added Feb 26 • You</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+      <div class="file-item">
+        <div class="file-thumb">
+          <div class="file-thumb-lines">
+            <div class="thumb-line"></div><div class="thumb-line dark short"></div>
+            <div class="thumb-line dark"></div><div class="thumb-line"></div>
+            <div class="thumb-line short"></div><div class="thumb-line dark"></div>
+            <div class="thumb-line"></div><div class="thumb-line"></div>
+          </div>
+        </div>
+        <div class="file-info">
+          <div class="file-name">TechNorth — Previous Contract 2024</div>
+          <div class="file-meta">Added Feb 25 • You</div>
+        </div>
+        <div class="file-more">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="chat-header-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        AI Assistant
+      </div>
+      <div class="chat-header-more">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </div>
+    </div>
+
+    <div class="chat-messages">
+
+      <!-- LANDING STATE: greeting + pre-generated summary card -->
+      <div class="landing-greeting">
+        Hello, Karan. Explore insights or ask AI Assistant a question.
+      </div>
+      <div class="landing-subtitle">Here's a quick summary of the files to get you started.</div>
+
+      <div class="summary-card-landing">
+        <div class="summary-card-label">Summary</div>
+        <div class="summary-card-title">Q1 Enterprise Deal Review</div>
+
+        <p class="summary-body">
+          This space contains active deal documents for Meridian Corp and TechNorth, along with Yukon collections covering pricing policies and sales enablement. <span class="cite">1·3</span>
+          The deals are at contract review stage with open questions around discount compliance and non-standard SLA terms. <span class="cite">4·6</span>
+          Resolution of these issues is needed before both deals can be countersigned.
+        </p>
+
+        <ul class="summary-bullets">
+          <li><strong>Pricing Compliance:</strong> Meridian proposal includes a 22% volume discount, exceeding the 18% standard threshold. VP-level written approval is not yet on file. <span class="cite">1·2</span></li>
+          <li><strong>Contract Terms:</strong> TechNorth contract draft requests non-standard SLA terms (99.95% uptime, 4-hr critical response) consistent with their 2024 agreement. <span class="cite">5</span></li>
+          <li><strong>Deal Status:</strong> Both accounts are Q1 priority. Meridian surgery equivalent — deal close blocked pending exception approval. TechNorth ready for legal review. <span class="cite">3·6</span></li>
+          <li><strong>Next Steps:</strong> Escalate Meridian discount exception to VP Finance and VP Sales; route TechNorth SLA language to legal before countersigning. <span class="cite">2·4</span></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-input-wrap">
+      <div class="chat-input-box">
+        <textarea class="chat-input" placeholder="Ask a question or describe what you'd like to work on" rows="1"></textarea>
+        <div class="chat-input-footer">
+          <button class="ai-assistant-picker">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Choose an AI Assistant
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="chat-input-actions">
+            <button class="chat-action-btn" title="Copy">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <button class="chat-send-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="chat-disclaimer">AI responses may be inaccurate. <a href="#">GenAI Guidelines</a></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
