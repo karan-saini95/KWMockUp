@@ -47,7 +47,7 @@
 
   .app {
     display: grid;
-    grid-template-columns: 52px 280px 1fr;
+    grid-template-columns: 180px 280px 1fr;
     grid-template-rows: 44px 1fr;
     height: 100vh;
   }
@@ -156,54 +156,79 @@
 
   /* ─── LEFT NAV ─── */
   .nav {
-    background: var(--nav-bg);
+    background: #F5F5F5;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 10px 0;
-    gap: 2px;
-    z-index: 10;
+    padding: 8px 0;
+    gap: 0;
+    border-right: 1px solid var(--border);
   }
 
   .nav-item {
-    width: 40px; height: 40px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    color: var(--nav-icon);
+    gap: 12px;
+    padding: 10px 16px;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.12s;
-    gap: 2px;
     position: relative;
+    font-size: 14px;
+    border-radius: 0;
   }
 
-  .nav-item:hover { background: var(--nav-active-bg); color: var(--nav-icon-active); }
+  .nav-item:hover { background: #EBEBEB; color: var(--text-primary); }
 
   .nav-item.active {
-    background: var(--nav-active-bg);
-    color: var(--nav-icon-active);
+    background: var(--text-primary);
+    color: white;
+    border-radius: 8px;
+    margin: 0 8px;
+    padding: 10px 12px;
   }
 
-  .nav-item svg { width: 18px; height: 18px; }
+  .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 
   .nav-label {
-    font-size: 9px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.01em;
+    flex: 1;
   }
 
   .nav-badge {
-    position: absolute;
-    top: 5px; right: 5px;
-    background: var(--red);
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: auto;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: static;
+  }
+
+  .nav-item.active .nav-badge { color: white; }
+
+  .nav-count {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .nav-item.active .nav-count { color: rgba(255,255,255,0.8); }
+
+  .nav-ext-icon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 16px;
   }
 
   .nav-spacer { flex: 1; }
@@ -747,6 +772,321 @@
     line-height: 1.6;
     color: var(--text-primary);
   }
+
+  /* ─── FILE PICKER MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    width: 760px;
+    max-width: 95vw;
+    height: 540px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    animation: modalIn 0.18s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.97) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Left sidebar */
+  .modal-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 20px 0 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-selected-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 16px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-selected-count {
+    background: var(--user-bubble);
+    color: white;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+  }
+
+  .modal-section-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 12px 16px 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .modal-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.1s;
+  }
+  .modal-tab:hover { background: #F5F5F5; color: var(--text-primary); }
+  .modal-tab.active { background: #EBEBEB; color: var(--text-primary); font-weight: 500; }
+
+  .modal-cloud-link {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--user-bubble);
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* Right content */
+  .modal-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-content-header {
+    padding: 20px 24px 8px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .modal-subtitle {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+  .modal-subtitle a { color: var(--user-bubble); text-decoration: none; }
+
+  /* Recent file list */
+  .modal-file-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .modal-file-header {
+    display: grid;
+    grid-template-columns: 36px 1fr 100px;
+    padding: 8px 24px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    align-items: center;
+  }
+
+  .modal-file-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 100px;
+    padding: 10px 24px;
+    border-bottom: 1px solid #F5F5F5;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .modal-file-row:hover { background: #FAFAFA; }
+  .modal-file-row.checked { background: #EEF3FD; }
+
+  .modal-checkbox {
+    width: 16px; height: 16px;
+    border: 1.5px solid #BBBBBB;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.1s;
+    background: white;
+  }
+
+  .modal-checkbox.checked {
+    background: #1473E6;
+    border-color: #1473E6;
+  }
+
+  .modal-checkbox.indeterminate {
+    background: #1473E6;
+    border-color: #1473E6;
+  }
+
+  .modal-file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .modal-file-thumb {
+    width: 28px; height: 36px;
+    border-radius: 2px;
+    border: 1px solid #E0E0E0;
+    background: #FAFAFA;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .modal-thumb-red {
+    background: #EB1000;
+    width: 100%; height: 100%;
+  }
+
+  .modal-file-details { min-width: 0; }
+
+  .modal-file-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .modal-file-size {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+
+  .modal-file-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+  }
+
+  /* Device upload tab */
+  .modal-upload-zone {
+    flex: 1;
+    margin: 16px 24px;
+    border: 1.5px dashed #CCCCCC;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .modal-upload-zone:hover { border-color: #999; }
+
+  .modal-upload-icon {
+    width: 64px; height: 52px;
+    position: relative;
+  }
+
+  .modal-upload-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .modal-upload-formats {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .modal-select-btn {
+    margin-top: 4px;
+    padding: 7px 18px;
+    border-radius: 16px;
+    border: 1.5px solid var(--text-primary);
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: background 0.1s;
+  }
+  .modal-select-btn:hover { background: #F0F0F0; }
+
+  /* Footer */
+  .modal-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-remaining {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .modal-footer-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .modal-cancel {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .modal-cancel:hover { background: #F5F5F5; }
+
+  .modal-add-btn {
+    padding: 8px 20px;
+    border-radius: 16px;
+    background: #CCCCCC;
+    border: none;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: not-allowed;
+    font-family: inherit;
+    transition: background 0.12s;
+  }
+  .modal-add-btn.active {
+    background: #1473E6;
+    cursor: pointer;
+  }
+  .modal-add-btn.active:hover { background: #0F5EC4; }
 </style>
 </head>
 <body>
@@ -757,7 +1097,7 @@
     <div class="topbar-logo">
       <svg class="acrobat-icon" viewBox="0 0 26 26" fill="none">
         <rect width="26" height="26" rx="5" fill="#EB1000"/>
-        <path d="M7 19V8l6 8 6-8v11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 7L7 19h2.5l1.2-2.8h4.6L16.5 19H19L13 7zm0 3.5l1.6 3.7h-3.2L13 10.5z" fill="white"/>
       </svg>
     </div>
     <div class="space-name">
@@ -788,27 +1128,32 @@
     <div class="nav-item active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span class="nav-label">Files</span>
-      <div class="nav-badge">6</div>
+      <span class="nav-badge">6</span>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       <span class="nav-label">Notes</span>
-      <div style="position:absolute;top:5px;right:5px;font-size:9px;color:#aaa;font-weight:600;">0</div>
+      <span class="nav-count">0</span>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
       <span class="nav-label">Podcasts</span>
-      <div style="position:absolute;top:5px;right:5px;font-size:9px;color:#aaa;font-weight:600;">2</div>
+      <span class="nav-count">2</span>
     </div>
+    <div class="nav-divider"></div>
     <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       <span class="nav-label">Presentations</span>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#AAAAAA" stroke-width="2" style="position:absolute;top:6px;right:5px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      <svg class="nav-ext-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </div>
     <div class="nav-spacer"></div>
     <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span class="nav-label">Learn</span>
+    </div>
+    <div class="nav-item" style="margin-bottom:4px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      <span class="nav-label" style="font-size:12px;color:var(--text-tertiary)"></span>
     </div>
   </nav>
 
@@ -821,8 +1166,8 @@
       </div>
     </div>
     <div class="file-panel-subtitle">Add or select files and links to update your PDF Space</div>
-    <div class="drop-zone">
-      Drag and drop your files, or <a href="#">choose files</a>
+    <div class="drop-zone" onclick="openModal()">
+      Drag and drop your files, or <a href="#" onclick="event.preventDefault();openModal()">choose files</a>
     </div>
     <div class="file-controls">
       <button class="sort-btn">
@@ -1019,5 +1364,203 @@
   </div>
 
 </div>
+
+<!-- FILE PICKER MODAL -->
+<div class="modal-overlay" id="fileModal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-body">
+
+      <!-- Left sidebar -->
+      <div class="modal-sidebar">
+        <div class="modal-selected-label">
+          Selected
+          <span class="modal-selected-count" id="selectedCount" style="display:none">0</span>
+        </div>
+        <div class="modal-section-label">Add files from</div>
+        <div class="modal-tab active" id="tab-recent" onclick="switchTab('recent')">Recent</div>
+        <div class="modal-tab" id="tab-device" onclick="switchTab('device')">Your device</div>
+        <div class="modal-tab" id="tab-weblink" onclick="switchTab('weblink')">Web link</div>
+        <div class="modal-tab" id="tab-pasted" onclick="switchTab('pasted')">Pasted text</div>
+        <div class="modal-cloud-link">Add cloud files</div>
+      </div>
+
+      <!-- Right content -->
+      <div class="modal-content">
+
+        <!-- Recent tab -->
+        <div id="panel-recent">
+          <div class="modal-content-header">
+            <div class="modal-title">Select recent files</div>
+            <div class="modal-subtitle">Files will be processed in the cloud when you add them. <a href="#">GenAI Guidelines</a></div>
+          </div>
+          <div class="modal-file-list">
+            <div class="modal-file-header">
+              <div class="modal-checkbox indeterminate" id="selectAllBox" onclick="toggleAll(event)">
+                <svg width="10" height="10" viewBox="0 0 10 2" fill="none"><rect width="10" height="2" rx="1" fill="white"/></svg>
+              </div>
+              <div>Name</div>
+              <div style="text-align:right">Opened</div>
+            </div>
+            <div class="modal-file-list" id="recentFileList" style="overflow-y:auto;max-height:320px;">
+              <!-- rows injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Device tab -->
+        <div id="panel-device" style="display:none; flex:1; flex-direction:column; display:none;">
+          <div class="modal-content-header">
+            <div class="modal-title">Upload files</div>
+            <div class="modal-subtitle">You can add files, links, and copied text to a PDF Space. They'll be processed in the cloud when you add them. <a href="#">GenAI Guidelines</a></div>
+          </div>
+          <div class="modal-upload-zone">
+            <svg width="72" height="56" viewBox="0 0 72 56" fill="none">
+              <rect x="2" y="8" width="40" height="48" rx="3" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="1.5"/>
+              <rect x="28" y="2" width="36" height="46" rx="3" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+              <rect x="28" y="2" width="36" height="10" rx="3" fill="#EBEBEB" stroke="#E0E0E0" stroke-width="1.5"/>
+              <circle cx="52" cy="42" r="12" fill="#6058E8"/>
+              <path d="M52 37v10M47 42l5-5 5 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="modal-upload-text">Drag and drop files</div>
+            <div class="modal-upload-formats">PDF, DOCX, PPTX, TXT, RTF, XLS, VTT<br>Max 100 files; 100MB and 600 pages each</div>
+            <button class="modal-select-btn">Select files</button>
+          </div>
+        </div>
+
+        <!-- Web link tab -->
+        <div id="panel-weblink" style="display:none; flex:1; flex-direction:column;">
+          <div class="modal-content-header">
+            <div class="modal-title">Add web link</div>
+            <div class="modal-subtitle">Paste a URL to add web content to your PDF Space.</div>
+          </div>
+          <div style="padding:16px 24px;">
+            <input type="text" placeholder="https://" style="width:100%;padding:10px 12px;border:1px solid #CCCCCC;border-radius:6px;font-size:13px;font-family:inherit;outline:none;"/>
+          </div>
+        </div>
+
+        <!-- Pasted text tab -->
+        <div id="panel-pasted" style="display:none; flex:1; flex-direction:column;">
+          <div class="modal-content-header">
+            <div class="modal-title">Paste text</div>
+            <div class="modal-subtitle">Paste any text content to add it to your PDF Space.</div>
+          </div>
+          <div style="padding:16px 24px;flex:1;">
+            <textarea placeholder="Paste your text here…" style="width:100%;height:260px;padding:10px 12px;border:1px solid #CCCCCC;border-radius:6px;font-size:13px;font-family:inherit;outline:none;resize:none;"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <div class="modal-remaining" id="remainingLabel">94 files remaining</div>
+      <div class="modal-footer-actions">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-add-btn" id="addBtn">Add to PDF Space</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const recentFiles = [
+    { name: 'Meridian Corp — Proposal v4.pdf', size: 'PDF · 1.2 MB', date: 'Mar 3', thumb: 'lines' },
+    { name: 'TechNorth — Contract Redline.pdf', size: 'PDF · 890 KB', date: 'Mar 1', thumb: 'lines' },
+    { name: 'Customer Zero Prioritized Feedback (2).pdf', size: 'PDF · 412 KB', date: 'Feb 6', thumb: 'red' },
+    { name: 'Customer Zero Prioritized Feedback.pdf', size: 'PDF · 328 KB', date: 'Nov 13, 2025', thumb: 'color' },
+    { name: 'Pricing Deck Q1 2026.pdf', size: 'PDF · 2.1 MB', date: 'Oct 30, 2025', thumb: 'lines' },
+    { name: 'Sales Enablement — APAC.pdf', size: 'PDF · 560 KB', date: 'Oct 23, 2025', thumb: 'lines' },
+    { name: 'Enterprise Contract Template.pdf', size: 'PDF · 116 KB', date: 'Sep 14, 2025', thumb: 'lines' },
+  ];
+
+  const selected = new Set();
+  const totalFiles = 94;
+
+  function renderFileList() {
+    const list = document.getElementById('recentFileList');
+    list.innerHTML = recentFiles.map((f, i) => `
+      <div class="modal-file-row ${selected.has(i) ? 'checked' : ''}" onclick="toggleFile(${i})">
+        <div class="modal-checkbox ${selected.has(i) ? 'checked' : ''}">
+          ${selected.has(i) ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
+        </div>
+        <div class="modal-file-info">
+          <div class="modal-file-thumb">
+            ${f.thumb === 'red' ? '<div class="modal-thumb-red"></div>' :
+              '<div style="display:flex;flex-direction:column;gap:2px;padding:4px;width:100%">' +
+              '<div style="height:2px;background:#DDD;border-radius:1px"></div>'.repeat(6) + '</div>'}
+          </div>
+          <div class="modal-file-details">
+            <div class="modal-file-name">${f.name}</div>
+            <div class="modal-file-size">${f.size}</div>
+          </div>
+        </div>
+        <div class="modal-file-date">${f.date}</div>
+      </div>
+    `).join('');
+    updateState();
+  }
+
+  function toggleFile(i) {
+    if (selected.has(i)) selected.delete(i);
+    else selected.add(i);
+    renderFileList();
+  }
+
+  function toggleAll(e) {
+    e.stopPropagation();
+    if (selected.size === recentFiles.length) selected.clear();
+    else recentFiles.forEach((_, i) => selected.add(i));
+    renderFileList();
+  }
+
+  function updateState() {
+    const count = selected.size;
+    const countEl = document.getElementById('selectedCount');
+    const addBtn = document.getElementById('addBtn');
+    const remaining = document.getElementById('remainingLabel');
+    const headerBox = document.getElementById('selectAllBox');
+
+    countEl.textContent = count;
+    countEl.style.display = count > 0 ? 'inline' : 'none';
+    addBtn.className = count > 0 ? 'modal-add-btn active' : 'modal-add-btn';
+    remaining.textContent = (totalFiles - count) + ' files remaining';
+
+    // header checkbox state
+    if (count === 0) {
+      headerBox.className = 'modal-checkbox';
+      headerBox.innerHTML = '';
+    } else if (count === recentFiles.length) {
+      headerBox.className = 'modal-checkbox checked';
+      headerBox.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      headerBox.className = 'modal-checkbox indeterminate';
+      headerBox.innerHTML = '<svg width="10" height="2" viewBox="0 0 10 2" fill="none"><rect width="10" height="2" rx="1" fill="white"/></svg>';
+    }
+  }
+
+  function switchTab(tab) {
+    ['recent','device','weblink','pasted'].forEach(t => {
+      document.getElementById('tab-' + t).className = 'modal-tab' + (t === tab ? ' active' : '');
+      const panel = document.getElementById('panel-' + t);
+      panel.style.display = t === tab ? (t === 'recent' ? 'block' : 'flex') : 'none';
+    });
+  }
+
+  function openModal() {
+    selected.clear();
+    renderFileList();
+    document.getElementById('fileModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('fileModal').classList.remove('open');
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('fileModal')) closeModal();
+  }
+</script>
+
 </body>
 </html>
